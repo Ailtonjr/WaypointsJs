@@ -1,11 +1,30 @@
 var express = require('express');
 var router  = express.Router();
 var produroController = require('../controllers/produtoController');
+var usuarioController = require('../controllers/usuarioController');
 
+//Pega o token da header e põe na requisição
+function pegarToken(req, res, next) {
+  var header = req.headers['authorization'];
 
-router.get('/',function (req, res) {
-  produroController.list(function(resp) {
-    res.json(resp);
+  if (typeof header !== 'undefined') {
+    req.token  = header;
+    next();
+  }else {
+    res.sendStatus(403);
+  }
+}
+
+router.get('/', pegarToken, function (req, res) {
+  var token = req.token;
+  usuarioController.authorize(token, function(resp) {
+    if(resp == true){
+      produroController.list(function(resp) {
+        res.json(resp);
+      })
+    }else {
+      res.sendStatus(403);
+    }
   })
 });
 

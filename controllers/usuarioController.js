@@ -33,8 +33,10 @@ exports.login = function (nome, senha, callback) {
       if (usuario.validarSenha(senha)) {
         callback(usuario.token)
       }else {
-        callback('Usuario inexistente');
+        callback('Usuario ou senha inexistente');
       }
+  }else {
+    callback('Usuario ou senha inexistente');
   }
 });
 }
@@ -48,6 +50,18 @@ exports.list = function (token, callback) {
       callback({'nome': usuario.nome});
     }else {
       callback('Usuario não encontrado');
+    }
+  });
+}
+
+exports.authorize = function(token, callback) {
+  Usuario.findOne({'token': token}, function(erro, usuario) {
+    if (erro) {
+      callback(false);
+    }else if (usuario) {
+      callback(true);
+    }else {
+      callback(false);
     }
   });
 }
